@@ -42,7 +42,7 @@ apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community dotnet
 
 mkdir -p /custom-services.d
 echo "Download QueueCleaner service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
+curl https://raw.githubusercontent.com/maus-me/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
 echo "Done"
 
 echo "Download AutoConfig service..."
