@@ -55,7 +55,7 @@ pip3 install -r ${SMA_PATH}/setup/requirements.txt
 mkdir -p /custom-services.d
 
 echo "Download QueueCleaner service..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
+curl https://raw.githubusercontent.com/maus-me/arr-scripts/main/universal/services/QueueCleaner -o /custom-services.d/QueueCleaner
 echo "Done"
 
 echo "Download AutoConfig service..."
