@@ -33,25 +33,25 @@ QueueCleanerProcess () {
 
   # Sonarr
   if [ -z "$arrQueueData" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownSeriesItems=false&apikey=${arrApiKey}" | jq -r .records[])"
     arrApp="sonarr"
   fi
 
   # Radarr
   if [ -z "$arrQueueData" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrQueueData="$(curl -s "$arrUrl/api/v3/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownMovieItems=false&apikey=${arrApiKey}" | jq -r .records[])"
     arrApp="radarr"
   fi
 
   # Lidarr
   if [ -z "$arrQueueData" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownArtistItems=false&apikey=${arrApiKey}" | jq -r .records[])"
     arrApp="lidarr"
   fi
   
   # Readarr
   if [ -z "$arrQueueData" ]; then
-    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=true&apikey=${arrApiKey}" | jq -r .records[])"
+    arrQueueData="$(curl -s "$arrUrl/api/v1/queue?page=1&pagesize=200&sortDirection=descending&sortKey=progress&includeUnknownAuthorItems=false&apikey=${arrApiKey}" | jq -r .records[])"
     arrApp="readarr"
   fi
 
@@ -89,7 +89,7 @@ QueueCleanerProcess () {
         fi
       fi
       log "$queueId ($arrQueueItemTitle) :: Removing Failed Queue Item from $arrName..."
-      deleteItem=$(curl -sX DELETE "$arrUrl/api/$arrApiVersion/queue/$queueId?removeFromClient=true&blocklist=true&apikey=${arrApiKey}")
+      deleteItem=$(curl -sX DELETE "$arrUrl/api/$arrApiVersion/queue/$queueId?removeFromClient=false&blocklist=true&apikey=${arrApiKey}")
     done
   fi
 }
