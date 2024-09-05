@@ -76,8 +76,8 @@ DownloadExtras () {
             tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r ".id")
             tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r ".id" | wc -l)
         else
-            tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\") | .id")
-            tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\") | .id" | wc -l)
+            tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id")
+            tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id" | wc -l)
         fi
         if [ -z "$tmdbVideosListDataIds" ]; then
             log "$itemTitle :: None found..."
