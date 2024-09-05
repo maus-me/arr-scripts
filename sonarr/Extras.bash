@@ -72,8 +72,13 @@ DownloadExtras () {
         fi
 	
         log "$itemTitle :: Searching for \"$filter\" extras..."
-        tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id")
-        tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id" | wc -l)
+        if [ "$extrasType" == "all" ]; then
+            tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r ".id")
+            tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r ".id" | wc -l)
+        else
+            tmdbVideosListDataIds=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id")
+            tmdbVideosListDataIdsCount=$(echo "$tmdbVideosListData" | jq -r "select(.type==\"Trailer\" or .type==\"Opening Credits\") | .id" | wc -l)
+        fi
         if [ -z "$tmdbVideosListDataIds" ]; then
             log "$itemTitle :: None found..."
             continue
@@ -108,7 +113,7 @@ DownloadExtras () {
                 extraFolderName="trailers"
             elif [ "$tmdbExtraType" == "Behind the Scenes" ]; then
                 extraFolderName="behind the scenes"
-            elif [ "$tmdbExtraType" == "Opening Credits"]; then
+            elif [ "$tmdbExtraType" == "Opening Credits" ]; then
                 extraFolderName="backdrops"
             else
                 extraFolderName="others"
