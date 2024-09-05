@@ -113,6 +113,8 @@ DownloadExtras () {
                 extraFolderName="trailers"
             elif [ "$tmdbExtraType" == "Behind the Scenes" ]; then
                 extraFolderName="behind the scenes"
+            elif [ "$tmdbExtraType" == "Opening Credits"]; then
+                extraFolderName="backdrops"
             else
                 extraFolderName="other"
             fi
