@@ -116,7 +116,7 @@ DownloadExtras () {
             elif [ "$tmdbExtraType" == "Opening Credits"]; then
                 extraFolderName="backdrops"
             else
-                extraFolderName="other"
+                extraFolderName="others"
             fi
 
             if [ ! -d "$itemPath/$extraFolderName" ]; then
@@ -125,7 +125,7 @@ DownloadExtras () {
             fi
 
             finalPath="$itemPath/$extraFolderName"
-	    if [ "$extraFolderName" == "other" ]; then
+	    if [ "$extraFolderName" == "others" ]; then
      		finalFileName="$tmdbExtraTitleClean ($tmdbExtraType)"
      	    else
             	finalFileName="$tmdbExtraTitleClean"
