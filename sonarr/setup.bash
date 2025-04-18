@@ -96,7 +96,7 @@ curl https://raw.githubusercontent.com/maus-me/arr-scripts/main/sonarr/Extras.ba
 echo "Done"
 
 echo "Download TdarrScan script..."
-curl https://raw.githubusercontent.com/RandomNinjaAtk/arr-scripts/main/sonarr/TdarrScan.bash -o /config/extended/TdarrScan.bash 
+curl https://raw.githubusercontent.com/maus-me/arr-scripts/main/sonarr/TdarrScan.bash -o /config/extended/TdarrScan.bash 
 echo "Done"
 
 if [ ! -f /config/extended/sma.ini ]; then
