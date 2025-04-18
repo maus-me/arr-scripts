@@ -1,5 +1,5 @@
 #!/usr/bin/with-contenv bash
-scriptVersion="3.9"
+scriptVersion="4.0"
 scriptName="Video"
 
 ### Import Settings
@@ -222,13 +222,19 @@ DownloadVideo () {
         chmod 777 "$videoDownloadPath/incomplete"
     fi 
 
+    ytdlpConfigurableArgs=""
+    if [ ! -z "$cookiesFile" ]; then
+      ytdlpConfigurableArgs='${ytdlpConfigurableArgs} --cookies "$cookiesFile" '
+    fi
+
+    if [ "$videoInfoJson" == "true" ]; then
+      ytdlpConfigurableArgs='${ytdlpConfigurableArgs} --write-info-json '
+    fi
+
+
     if echo "$1" | grep -i "youtube" | read; then
         if [ $videoContainer = mkv ]; then
-            if [ ! -z "$cookiesFile" ]; then
-                yt-dlp -f "$videoFormat" --no-video-multistreams --cookies "$cookiesFile" -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
-            else
-                yt-dlp -f "$videoFormat" --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
-            fi
+            yt-dlp -f "$videoFormat" --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" $ytdlpConfigurableArgs --embed-subs --sub-lang $youtubeSubtitleLanguage --merge-output-format mkv --remux-video mkv --no-mtime --geo-bypass "$1"
             if [ -f "$videoDownloadPath/incomplete/${2}${3}.mkv" ]; then
                 chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mkv"
                 downloadFailed=false
@@ -236,11 +242,7 @@ DownloadVideo () {
                 downloadFailed=true
             fi
         else
-            if [ ! -z "$cookiesFile" ]; then
-                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams --cookies "$cookiesFile" -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
-            else
-                yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
-            fi
+            yt-dlp --format-sort ext:mp4:m4a --merge-output-format mp4 --no-video-multistreams -o "$videoDownloadPath/incomplete/${2}${3}" $ytdlpConfigurableArgs --embed-subs --sub-lang $youtubeSubtitleLanguage --no-mtime --geo-bypass "$1"
             if [ -f "$videoDownloadPath/incomplete/${2}${3}.mp4" ]; then
                 chmod 666 "$videoDownloadPath/incomplete/${2}${3}.mp4"
                 downloadFailed=false
@@ -540,12 +542,22 @@ VideoProcess () {
       log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: Checking for IMVDB Slug"
       artistImvdbUrl=$(echo $lidarrArtistData | jq -r '.links[] | select(.name=="imvdb") | .url')
       artistImvdbSlug=$(basename "$artistImvdbUrl")
-  
-      if [ ! -z "$artistImvdbSlug" ]; then
-        log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Slug :: $artistImvdbSlug"
-      else
-      	log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: Slug Not Found, skipping..."
-  	continue
+
+      if [ -z "$artistImvdbSlug" ]; then
+          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: ERROR :: No IMVDB artist link found, skipping..."
+          # Create log of missing IMVDB url...
+          if [ ! -d "/config/extended/logs/video/imvdb-link-missing" ]; then
+              mkdir -p "/config/extended/logs/video/imvdb-link-missing"
+              chmod 777 "/config/extended/logs/video"
+              chmod 777 "/config/extended/logs/video/imvdb-link-missing"
+          fi
+          if [ -d "/config/extended/logs/video/imvdb-link-missing" ]; then
+              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
+              touch "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
+	  fi
+       else
+         log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Slug :: $artistImvdbSlug"
+	 continue
       fi
 
       if [ -d /config/extended/logs/video/complete ]; then
@@ -569,20 +581,8 @@ VideoProcess () {
               continue            
           fi
       fi
-  
-      if [ -z "$artistImvdbSlug" ]; then
-          log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: No IMVDB artist link found, skipping..."
-          # Create log of missing IMVDB url...
-          if [ ! -d "/config/extended/logs/video/imvdb-link-missing" ]; then
-              mkdir -p "/config/extended/logs/video/imvdb-link-missing"
-              chmod 777 "/config/extended/logs/video"
-              chmod 777 "/config/extended/logs/video/imvdb-link-missing"
-          fi
-          if [ -d "/config/extended/logs/video/imvdb-link-missing" ]; then
-              log "${processCount}/${lidarrArtistIdsCount} :: $lidarrArtistName :: IMVDB :: Logging missing IMVDB artist in folder: /config/extended/logs/video/imvdb-link-missing"
-              touch "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
-          fi       
-      else
+      
+      if [ ! -z "$artistImvdbSlug" ]; then
       	# Remove missing IMVDB log file, now that it is found...
       	if [ -f "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}" ]; then
   		rm "/config/extended/logs/video/imvdb-link-missing/${lidarrArtistFolderNoDisambig}--mbid-${lidarrArtistMusicbrainzId}"
